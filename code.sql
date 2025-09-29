@@ -32,6 +32,7 @@ CREATE OR REPLACE FUNCTION on_alter_table()
 RETURNS event_trigger AS $$
 DECLARE
     ddl_cmd record;
+    schema_name text;
     table_name text;
 BEGIN
     FOR ddl_cmd IN
@@ -41,6 +42,12 @@ BEGIN
             table_name = (parse_ident(ddl_cmd.object_identity))[2];
             UPDATE public.layer_styles SET f_table_schema =
                 ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
+        ELSIF ddl_cmd.command_tag = 'ALTER SCHEMA'  AND ddl_cmd.object_type = 'schema' THEN
+            SELECT nspname INTO schema_name FROM pg_namespace WHERE oid = ddl_cmd.objid;
+            UPDATE public.layer_styles SET f_table_schema = schema_name
+                WHERE
+                    table_oid IN (SELECT oid FROM pg_class WHERE pg_class.relnamespace = ddl_cmd.objid)
+                    AND f_table_schema <> schema_name;
         END IF;
     END LOOP;
 END;
@@ -48,7 +55,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE EVENT TRIGGER trg_alter_table
     ON ddl_command_end
-    WHEN TAG IN ('ALTER TABLE')
+    WHEN TAG IN ('ALTER TABLE', 'ALTER SCHEMA')
     EXECUTE FUNCTION on_alter_table();
 
 SELECT table_oid, * FROM public.layer_styles;

@@ -50,8 +50,7 @@ Triggers, are attached to a table or view and react to statements such as `INSER
 
 Custom logic executed when database objects are updated with commands such as `CREATE TABLE`, `ALTER TABLE` etc. (DDL - Data Definition Language)
 
-* Event triggers are fired either at the **start** or **end** of a **command** as per [Event
-Trigger Firing Matrix][event-trigger-matrix].
+* Event triggers are fired either at the **start** or **end** of a **command**
 
 * **Example:** setting default privileges for a newly created table.
 
@@ -112,6 +111,13 @@ When a table is renamed, update `f_table_schema` and `f_table_name` columns in `
 
 ---
 
+# `oid`s
+
+- An `oid` is an object identifier, used to identify objects in the database
+* The `oid` of a table stays the same even if it is renamed or moved to a different schema
+
+---
+
 ## Add `table_oid` column to `layer_styles`
 
 ```sql
@@ -123,13 +129,7 @@ UPDATE public.layer_styles SET table_oid =
 SELECT table_oid, * FROM public.layer_styles;
 ```
 
----
-
-# `oid`s
-
-- An `oid` is an object identifier, used to identify objects in the database
-* The `oid` of a table stays the same even if it is renamed or moved to a different schema
-* The [`to_regclass(text)` function][to_regclass] translates a textual relation name such as `uk.place` to its `oid`
+The [`to_regclass(text)` function][to_regclass] translates a textual relation name such as `uk.place` to its `oid`
 
 [to_regclass]: https://www.postgresql.org/docs/17/functions-info.html#:~:text=to_regclass%20(%20text%20)
 
@@ -162,8 +162,12 @@ CREATE TRIGGER layer_styles_table_oid
 
 The `layer_styles_table_oid` trigger and associated function ensure that the
 `table_oid` value is populated for newly inserted and updated rows.
-<br />
->  In QGIS, create a new style for the `uk.place` layer and save "In datasource database"
+
+## QGIS
+
+>  Create a **new style** for the `uk.place` layer and **save "In datasource database"**
+
+## pgAdmin
 
 ```sql
 SELECT table_oid, * FROM public.layer_styles;
@@ -178,6 +182,7 @@ CREATE OR REPLACE FUNCTION on_alter_table()
 RETURNS event_trigger AS $$
 DECLARE
     ddl_cmd record;
+    schema_name text;
     table_name text;
 BEGIN
     FOR ddl_cmd IN
@@ -187,6 +192,12 @@ BEGIN
             table_name = (parse_ident(ddl_cmd.object_identity))[2];
             UPDATE public.layer_styles SET f_table_schema =
                 ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
+        ELSIF ddl_cmd.command_tag = 'ALTER SCHEMA'  AND ddl_cmd.object_type = 'schema' THEN
+            SELECT nspname INTO schema_name FROM pg_namespace WHERE oid = ddl_cmd.objid;
+            UPDATE public.layer_styles SET f_table_schema = schema_name
+                WHERE
+                    table_oid IN (SELECT oid FROM pg_class WHERE pg_class.relnamespace = ddl_cmd.objid)
+                    AND f_table_schema <> schema_name;
         END IF;
     END LOOP;
 END;
@@ -197,9 +208,10 @@ $$ LANGUAGE plpgsql;
 
 The `event_trigger` function is executed on `ddl_command_end` when an `ALTER TABLE` DDL command has been executed, the actions have taken place (but before the transaction commits)
 ```sql
+DROP EVENT TRIGGER IF EXISTS trg_alter_table;
 CREATE EVENT TRIGGER trg_alter_table
     ON ddl_command_end
-    WHEN TAG IN ('ALTER TABLE')
+    WHEN TAG IN ('ALTER TABLE', 'ALTER SCHEMA')
     EXECUTE FUNCTION on_alter_table();
 ```
 
