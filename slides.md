@@ -206,7 +206,7 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-The `event_trigger` function is executed on `ddl_command_end` when an `ALTER TABLE` DDL command has been executed, the actions have taken place (but before the transaction commits)
+The `event_trigger` function is executed on `ddl_command_end` when an `ALTER TABLE` or `ALTER SCHEMA` DDL command has been executed, the actions have taken place (but before the transaction commits)
 ```sql
 DROP EVENT TRIGGER IF EXISTS trg_alter_table;
 CREATE EVENT TRIGGER trg_alter_table
@@ -228,15 +228,21 @@ list of DDL commands that caused the trigger function to be executed.
 
 ```sql
 ...
-FOR ddl_cmd IN
-    SELECT * FROM pg_event_trigger_ddl_commands()
-LOOP
-    IF ddl_cmd.command_tag = 'ALTER TABLE' AND ddl_cmd.object_type = 'table' THEN
-        table_name = (parse_ident(ddl_cmd.object_identity))[2];
-        UPDATE public.layer_styles SET f_table_schema =
-            ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
-    END IF;
-END LOOP;
+    FOR ddl_cmd IN
+        SELECT * FROM pg_event_trigger_ddl_commands()
+    LOOP
+        IF ddl_cmd.command_tag = 'ALTER TABLE' AND ddl_cmd.object_type = 'table' THEN
+            table_name = (parse_ident(ddl_cmd.object_identity))[2];
+            UPDATE public.layer_styles SET f_table_schema =
+                ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
+        ELSIF ddl_cmd.command_tag = 'ALTER SCHEMA'  AND ddl_cmd.object_type = 'schema' THEN
+            SELECT nspname INTO schema_name FROM pg_namespace WHERE oid = ddl_cmd.objid;
+            UPDATE public.layer_styles SET f_table_schema = schema_name
+                WHERE
+                    table_oid IN (SELECT oid FROM pg_class WHERE pg_class.relnamespace = ddl_cmd.objid)
+                    AND f_table_schema <> schema_name;
+        END IF;
+    END LOOP;
 ...
 ```
 
@@ -244,24 +250,25 @@ END LOOP;
 
 ```sql
 ...
-FOR ddl_cmd IN
-    SELECT * FROM pg_event_trigger_ddl_commands()
-LOOP
-    IF ddl_cmd.command_tag = 'ALTER TABLE' AND ddl_cmd.object_type = 'table' THEN
-        table_name = (parse_ident(ddl_cmd.object_identity))[2];
-        UPDATE public.layer_styles SET f_table_schema =
-            ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
-    END IF;
-END LOOP;
+        IF ddl_cmd.command_tag = 'ALTER TABLE' AND ddl_cmd.object_type = 'table' THEN
+            table_name = (parse_ident(ddl_cmd.object_identity))[2];
+            UPDATE public.layer_styles SET f_table_schema =
+                ddl_cmd.schema_name, f_table_name = table_name WHERE table_oid = ddl_cmd.objid;
+        ELSIF ddl_cmd.command_tag = 'ALTER SCHEMA'  AND ddl_cmd.object_type = 'schema' THEN
+            SELECT nspname INTO schema_name FROM pg_namespace WHERE oid = ddl_cmd.objid;
+            UPDATE public.layer_styles SET f_table_schema = schema_name
+                WHERE
+                    table_oid IN (SELECT oid FROM pg_class WHERE pg_class.relnamespace = ddl_cmd.objid)
+                    AND f_table_schema <> schema_name;
+        END IF;
 ...
 ```
 
 - We are using the following ddl command properties:
-    * `object_type` to determine that the statement is altering the `TABLE`
-        itself not a `COLUMN` or `CONSTRAINT`;
-    * `object_identity` to get the name of the table being altered;
-    * `schema_name` the schema which the table belongs to;
-    * `objid` the `oid` of the table being altered.
+    * `object_type` We check for `TABLE` or `SCHEMA`, ignoring `COLUMN` etc.
+    * `object_identity` name of the object (table or schema) being altered
+    * `schema_name` the schema which the object belongs to
+    * `objid` the `oid` of the object being altered
 
 ---
 
