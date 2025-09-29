@@ -38,9 +38,9 @@ Custom logic executed when something happens within the database.
 
 ## Triggers
 
-Triggers, are attached to a table or view and react to statements such as `INSERT`, `UPDATE` or `DELETE`.
+Triggers, are attached to a table or view and react to statements such as `INSERT`, `UPDATE` or `DELETE` (DML - Data Manipulation Language)
 
-* Executed `BEFORE`, `AFTER`, or `INSTEAD OF` the operation.
+* Executed `BEFORE`, `AFTER`, or `INSTEAD OF` the operation
 
 * **Example:** maintaining an `updated_at` column.
 
@@ -48,7 +48,7 @@ Triggers, are attached to a table or view and react to statements such as `INSER
 
 ## Event Triggers
 
-Custom logic executed when database objects are updated with commands such as `CREATE TABLE`, `ALTER TABLE` etc.
+Custom logic executed when database objects are updated with commands such as `CREATE TABLE`, `ALTER TABLE` etc. (DDL - Data Definition Language)
 
 * Event triggers are fired either at the **start** or **end** of a **command** as per [Event
 Trigger Firing Matrix][event-trigger-matrix].
@@ -191,12 +191,6 @@ BEGIN
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
-DROP EVENT TRIGGER IF EXISTS trg_alter_table;
-CREATE EVENT TRIGGER trg_alter_table
-    ON ddl_command_end
-    WHEN TAG IN ('ALTER TABLE')
-    EXECUTE FUNCTION on_alter_table();
 ```
 
 ---
@@ -636,7 +630,7 @@ SELECT * FROM public.raster_overviews;
 
 # Reference
 
-- [This talk and code](https://github.com/walkermatt/foss4g-uk-2025-postgis-qgis-triggers)
+- [This talk and code on GitHub](https://github.com/walkermatt/foss4g-uk-2025-postgis-qgis-triggers)
     - walkermatt/foss4g-uk-2025-postgis-qgis-triggers
 - ["Regular" Triggers (DML)](https://www.postgresql.org/docs/17/trigger-definition.html)
 - [Event Triggers (DDL)](https://www.postgresql.org/docs/17/trigger-definition.html)

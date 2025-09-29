@@ -40,10 +40,10 @@ the <code>layer_styles</code> table</li>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="4" data-marpit-fragments="2" data-header="Automate PostGIS and QGIS using Triggers" data-footer="mattwalker@astuntechnology.com" lang="en-GB" style="--header:Automate PostGIS and QGIS using Triggers;--footer:mattwalker@astuntechnology.com;">
 <header>Automate PostGIS and QGIS using Triggers</header>
 <h2 id="triggers-1">Triggers</h2>
-<p>Triggers, are attached to a table or view and react to statements such as <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code>.</p>
+<p>Triggers, are attached to a table or view and react to statements such as <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> (DML - Data Manipulation Language)</p>
 <ul>
 <li data-marpit-fragment="1">
-<p>Executed <code>BEFORE</code>, <code>AFTER</code>, or <code>INSTEAD OF</code> the operation.</p>
+<p>Executed <code>BEFORE</code>, <code>AFTER</code>, or <code>INSTEAD OF</code> the operation</p>
 </li>
 <li data-marpit-fragment="2">
 <p><strong>Example:</strong> maintaining an <code>updated_at</code> column.</p>
@@ -54,7 +54,7 @@ the <code>layer_styles</code> table</li>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="5" data-marpit-fragments="2" data-header="Automate PostGIS and QGIS using Triggers" data-footer="mattwalker@astuntechnology.com" lang="en-GB" style="--header:Automate PostGIS and QGIS using Triggers;--footer:mattwalker@astuntechnology.com;">
 <header>Automate PostGIS and QGIS using Triggers</header>
 <h2 id="event-triggers">Event Triggers</h2>
-<p>Custom logic executed when database objects are updated with commands such as <code>CREATE TABLE</code>, <code>ALTER TABLE</code> etc.</p>
+<p>Custom logic executed when database objects are updated with commands such as <code>CREATE TABLE</code>, <code>ALTER TABLE</code> etc. (DDL - Data Definition Language)</p>
 <ul>
 <li data-marpit-fragment="1">
 <p>Event triggers are fired either at the <strong>start</strong> or <strong>end</strong> of a <strong>command</strong> as per <a href="https://www.postgresql.org/docs/current/event-trigger-matrix.html">Event<br />
@@ -201,12 +201,6 @@ $BODY$;
     <span class="hljs-keyword">END</span> LOOP;
 <span class="hljs-keyword">END</span>;
 $$ <span class="hljs-keyword">LANGUAGE</span> plpgsql;
-
-<span class="hljs-keyword">DROP</span> EVENT <span class="hljs-keyword">TRIGGER</span> IF <span class="hljs-keyword">EXISTS</span> trg_alter_table;
-<span class="hljs-keyword">CREATE</span> EVENT <span class="hljs-keyword">TRIGGER</span> trg_alter_table
-    <span class="hljs-keyword">ON</span> ddl_command_end
-    <span class="hljs-keyword">WHEN</span> TAG <span class="hljs-keyword">IN</span> (<span class="hljs-string">&#x27;ALTER TABLE&#x27;</span>)
-    <span class="hljs-keyword">EXECUTE</span> <span class="hljs-keyword">FUNCTION</span> on_alter_table();
 </code></pre>
 <footer><a href="mailto:mattwalker@astuntechnology.com">mattwalker@astuntechnology.com</a></footer>
 </section>
@@ -646,7 +640,7 @@ $$;
 <header>Automate PostGIS and QGIS using Triggers</header>
 <h1 id="reference">Reference</h1>
 <ul>
-<li><a href="https://github.com/walkermatt/foss4g-uk-2025-postgis-qgis-triggers">This talk and code</a>
+<li><a href="https://github.com/walkermatt/foss4g-uk-2025-postgis-qgis-triggers">This talk and code on GitHub</a>
 <ul>
 <li>walkermatt/foss4g-uk-2025-postgis-qgis-triggers</li>
 </ul>
