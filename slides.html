@@ -113,7 +113,7 @@ Close <code>venue</code> layer, open the <code>place</code> layer - styles are m
 <h1 id="approach">Approach</h1>
 <ul>
 <li>Alter <code>layer_styles</code> to add an <code>f_table_oid</code> column to track the <code>schema</code> and<br />
-<code>table</code> of the associated table regardless of it's name</li>
+<code>table</code> of the associated table regardless of its name</li>
 </ul>
 <ul>
 <li data-marpit-fragment="1">Create a trigger to maintain the <code>table_oid</code> column on <code>INSERT</code> or <code>UPDATE</code></li>
@@ -331,7 +331,7 @@ Open the <code>venue</code> layer - styles are present <img class="emoji" dragga
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="26" data-header="Automate PostGIS and QGIS using Triggers" data-footer="mattwalker@astuntechnology.com" lang="en-GB" style="--header:Automate PostGIS and QGIS using Triggers;--footer:mattwalker@astuntechnology.com;">
 <header>Automate PostGIS and QGIS using Triggers</header>
 <h2 id="overviews-can-be-orphaned">Overviews can be orphaned</h2>
-<p>If the main raster table is <strong>renamed</strong> the association with it's overviews is broken <img class="emoji" draggable="false" alt="☹" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2639.svg" data-marp-twemoji=""/></p>
+<p>If the main raster table is <strong>renamed</strong> the association with its overviews is broken <img class="emoji" draggable="false" alt="☹" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2639.svg" data-marp-twemoji=""/></p>
 <p>The association is made via a constraint on each overview which references the <code>schema</code> and <code>table</code> of the main raster.</p>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-sql"><span class="hljs-keyword">CREATE TABLE</span> IF <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> uk.o_2_os_miniscale
 (

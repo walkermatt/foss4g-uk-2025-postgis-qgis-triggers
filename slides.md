@@ -105,7 +105,7 @@ When a table is renamed, update `f_table_schema` and `f_table_name` columns in `
 # Approach
 
 - Alter `layer_styles` to add an `f_table_oid` column to track the `schema` and
-  `table` of the associated table regardless of it's name
+  `table` of the associated table regardless of its name
 * Create a trigger to maintain the `table_oid` column on `INSERT` or `UPDATE`
 * Create an event trigger to update `f_table_schema` and `f_table_name` based on the `f_table_oid` after `ALTER TABLE`
 
@@ -326,7 +326,7 @@ SELECT * FROM raster_overviews;
 
 ## Overviews can be orphaned
 
-If the main raster table is **renamed** the association with it's overviews is broken ☹
+If the main raster table is **renamed** the association with its overviews is broken ☹
 
 The association is made via a constraint on each overview which references the `schema` and `table` of the main raster.
 

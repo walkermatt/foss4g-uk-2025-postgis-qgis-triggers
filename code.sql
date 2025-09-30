@@ -53,6 +53,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP EVENT TRIGGER IF EXISTS trg_alter_table;
 CREATE EVENT TRIGGER trg_alter_table
     ON ddl_command_end
     WHEN TAG IN ('ALTER TABLE', 'ALTER SCHEMA')
