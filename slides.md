@@ -36,25 +36,25 @@ Custom logic executed when something happens within the database.
 
 ---
 
-## Triggers
+## "Regular" Triggers
 
-Triggers, are attached to a table or view and react to statements such as `INSERT`, `UPDATE` or `DELETE` (DML - Data Manipulation Language)
+Triggers, are attached to a table or view and react to statements such as `INSERT`, `UPDATE` or `DELETE` (**DML** - Data Manipulation Language)
 
-* Executed `BEFORE`, `AFTER`, or `INSTEAD OF` the operation
+* Executed `BEFORE`, `AFTER`, or `INSTEAD OF` the statement
 
-* **Example:** maintaining an `updated_at` column.
+* **Example:** maintaining an `updated_at` column
 
 ---
 
 ## Event Triggers
 
-Custom logic executed when database objects are updated with commands such as `CREATE TABLE`, `ALTER TABLE` etc. (DDL - Data Definition Language)
+Custom logic executed when database objects are updated with commands such as `CREATE TABLE`, `ALTER TABLE` etc. (**DDL** - Data Definition Language)
 
 * Event triggers are fired either at the **start** or **end** of a **command**
+    * **start** - before any changes are made
+    * **end** - changes are made but not committed
 
-* **Example:** setting default privileges for a newly created table.
-
-[event-trigger-matrix]: https://www.postgresql.org/docs/current/event-trigger-matrix.html
+* **Example:** setting default privileges for a newly created table
 
 ---
 
@@ -64,7 +64,7 @@ Layer styles can be stored in the database along with the table associated with 
 
 ---
 
-## Layer styles stored in the database
+## Store layer styles in the database
 
 ### QGIS
 
@@ -80,7 +80,7 @@ SELECT * FROM layer_styles;
 
 ---
 
-## Renaming a table breaks the association with styles in `layer_styles`
+## Renaming a table breaks the association with styles in `layer_styles` ☹
 
 ### QGIS
 
@@ -107,7 +107,7 @@ When a table is renamed, update `f_table_schema` and `f_table_name` columns in `
 - Alter `layer_styles` to add an `f_table_oid` column to track the `schema` and
   `table` of the associated table regardless of its name
 * Create a trigger to maintain the `table_oid` column on `INSERT` or `UPDATE`
-* Create an event trigger to update `f_table_schema` and `f_table_name` based on the `f_table_oid` after `ALTER TABLE`
+* Create an event trigger to update `f_table_schema` and `f_table_name` based on the `f_table_oid` after `ALTER TABLE` or `ALTER SCHEMA`
 
 ---
 
@@ -286,9 +286,9 @@ list of DDL commands that caused the trigger function to be executed.
 SELECT table_oid, * FROM public.layer_styles;
 ```
 
----
+The same applies for `ALTER SCHEMA uk RENAME TO gb;` and `ALTER TABLE gb.venue SET SCHEMA public;`
 
-<!-- TODO Handle `ALTER SCHEMA` -->
+---
 
 # Raster data
 
